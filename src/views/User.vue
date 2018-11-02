@@ -17,17 +17,20 @@
     </el-row>
     <!-- 表格 -->
     <el-table :data="list" style="width: 100%">
-        <el-table-column type="index" label="#" width="60">
+        <el-table-column type="index" label="#" width="40">
         </el-table-column>
         <el-table-column prop="username" label="姓名" width="80">
         </el-table-column>
-        <el-table-column prop="email" label="邮箱" width="160">
+        <el-table-column prop="email" label="邮箱" width="140">
         </el-table-column>
-        <el-table-column prop="mobile" label="电话" width="120">
+        <el-table-column prop="mobile" label="电话" width="100">
         </el-table-column>
-        <el-table-column prop="create_time" label="创建日期" width="120">
+        <el-table-column label="创建日期" width="180">
+            <template slot-scope="scope">
+                {{scope.row.create_time | fmtDate}}
+            </template>
         </el-table-column>
-        <el-table-column prop="date" label="用户状态" width="100">
+        <el-table-column prop="date" label="用户状态" width="80">
             <template slot-scope="scope">
                 <el-switch 
                 v-model="scope.row.mg_state" 
