@@ -19,15 +19,15 @@
     <el-table :data="list" style="width: 100%">
         <el-table-column type="index" label="#" width="60">
         </el-table-column>
-        <el-table-column prop="username" label="姓名" width="100">
+        <el-table-column prop="username" label="姓名" width="80">
         </el-table-column>
-        <el-table-column prop="email" label="邮箱" width="180">
+        <el-table-column prop="email" label="邮箱" width="160">
         </el-table-column>
         <el-table-column prop="mobile" label="电话" width="120">
         </el-table-column>
         <el-table-column prop="create_time" label="创建日期" width="120">
         </el-table-column>
-        <el-table-column prop="date" label="用户状态" width="120">
+        <el-table-column prop="date" label="用户状态" width="100">
             <template slot-scope="scope">
                 <el-switch 
                 v-model="scope.row.mg_state" 
@@ -36,7 +36,14 @@
                 </el-switch>
             </template>
         </el-table-column>
-        <el-table-column prop="date" label="操作" width="140">
+        <el-table-column label="操作" width="140">
+            <template slot-scope="scope">
+                <el-row>
+                    <el-button type="primary" icon="el-icon-edit" size="mini" plain circle></el-button>
+                    <el-button type="danger" icon="el-icon-delete" size="mini" plain circle></el-button>
+                    <el-button type="success" icon="el-icon-check" size="mini" plain circle></el-button>
+                </el-row>
+            </template>
         </el-table-column>
 
     </el-table>
