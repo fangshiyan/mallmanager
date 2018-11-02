@@ -28,6 +28,13 @@
         <el-table-column prop="create_time" label="创建日期" width="120">
         </el-table-column>
         <el-table-column prop="date" label="用户状态" width="120">
+            <template slot-scope="scope">
+                <el-switch 
+                v-model="scope.row.mg_state" 
+                active-color="#13ce66" 
+                inactive-color="#ff4949">
+                </el-switch>
+            </template>
         </el-table-column>
         <el-table-column prop="date" label="操作" width="140">
         </el-table-column>
