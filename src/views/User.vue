@@ -39,6 +39,27 @@
             <el-button type="primary" @click="addUser()">确 定</el-button>
         </div>
     </el-dialog>
+    <!-- 编辑用户 -->
+    <el-dialog title="编辑用户" :visible.sync="dialogFormVisibleEdituser">
+        <el-form :model="formData">
+            <el-form-item label="用户名" :label-width="formLabelWidth">
+                <el-input disabled v-model="formData.username" autocomplete="off"></el-input>
+            </el-form-item>
+
+            <el-form-item label="邮箱" :label-width="formLabelWidth">
+                <el-input v-model="formData.email" autocomplete="off"></el-input>
+
+            </el-form-item>
+            <el-form-item label="电话" :label-width="formLabelWidth">
+                <el-input v-model="formData.mobile" autocomplete="off"></el-input>
+
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="dialogFormVisibleAdduser = false">取 消</el-button>
+            <el-button type="primary" @click="editUser()">确 定</el-button>
+        </div>
+    </el-dialog>
     <!-- 表格 -->
     <el-table v-loading="loading" :data="list" style="width: 100%">
         <el-table-column type="index" label="#" width="40">
@@ -63,8 +84,8 @@
         <el-table-column label="操作" width="140">
             <template slot-scope="scope">
                 <el-row>
-                    <el-button type="primary" icon="el-icon-edit" size="mini" plain circle></el-button>
-                    <el-button type="danger" icon="el-icon-delete" size="mini" plain circle @click="showDeleBox(scope.row)"></el-button>
+                    <el-button type="primary" icon="el-icon-edit" size="mini" plain circle @click="showEditBox(scope.row.id)"></el-button>
+                    <el-button type="danger" icon="el-icon-delete" size="mini" plain circle @click="showDeleBox(scope.row.id)"></el-button>
                     <el-button type="success" icon="el-icon-check" size="mini" plain circle></el-button>
                 </el-row>
             </template>
@@ -94,7 +115,9 @@ export default {
                 email: '',
                 mobile: ''
             },
-            formLabelWidth: '100px'
+            formLabelWidth: '100px',
+            dialogFormVisibleEdituser: false
+
         }
     },
     created() {
@@ -102,6 +125,21 @@ export default {
     },
 
     methods: {
+        //编辑用户
+        async editUser(){
+            this.dialogFormVisibleEdituser = false
+            const res = await this.$http.put(`users/${this.formData.id}`,this.formData)
+            console.log(res)
+            this.loadTableData()
+            this.$message.success(res.data.meta.msg)
+        },
+        async showEditBox(userId) {
+            this.dialogFormVisibleEdituser = true
+            const res = await this.$http.get(`users/${userId}`)
+            console.log(res)
+            this.formData = res.data.data
+            
+        },
         //添加用户
         async addUser() {
             this.dialogFormVisibleAdduser = false
@@ -127,31 +165,33 @@ export default {
         //删除提示框
         showDeleBox(userId) {
             this.$confirm('Sure?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(async () => {
-                const res = await this.$http.delete(`users/${userId}`)
-                // console.log(res)
-                const {
-                    meta: {
-                        msg,
-                        status
-                    }
-                } = res.data
-                if (status === 200) {
-                    this.loadTableData()
-                    this.$message({
-                        type: 'success',
-                        message: 'msg'
-                    })
-                }
-            }).catch(() => {
-                this.$message({
-                    type: 'info',
-                    message: 'msg'
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
                 })
-            })
+                .then(async () => {
+                    console.log(userId)
+                    const res = await this.$http.delete(`users/${userId}`)
+                    console.log(res)
+                    const {
+                        meta: {
+                            msg,
+                            status
+                        }
+                    } = res.data
+                    if (status === 200) {
+                        this.loadTableData()
+                        this.$message({
+                            type: 'success',
+                            message: '删除成功'
+                        })
+                    }
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    })
+                })
         },
         async changeSwitchMgstate(user) {
             const res = await this.$http.put(`users/${user.id}/state/${user.mg_state}`)
