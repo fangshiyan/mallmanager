@@ -1,7 +1,7 @@
 <template>
 <el-card class="box-card">
     <!-- 面包屑 -->
-    <el-breadcrumb separator="/">
+    <el-breadcrumb separator-class="el-icon-arrow-right">
         <el-breadcrumb-item>首页</el-breadcrumb-item>
         <el-breadcrumb-item>用户管理</el-breadcrumb-item>
         <el-breadcrumb-item>用户列表</el-breadcrumb-item>
@@ -12,9 +12,33 @@
             <el-input placeholder="请输入内容" class="searchInput" v-model="searchVal">
                 <el-button slot="append" icon="el-icon-search" @click="checkUser()"></el-button>
             </el-input>
-            <el-button type="success">添加用户</el-button>
+            <el-button type="success" @click="showAddUserDia()">添加用户</el-button>
         </el-col>
     </el-row>
+    <!-- 添加用户的对话框 -->
+    <el-dialog title="添加用户" :visible.sync="dialogFormVisibleAdduser">
+        <el-form :model="formData">
+            <el-form-item label="用户名" :label-width="formLabelWidth">
+                <el-input v-model="formData.username" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="密码" :label-width="formLabelWidth">
+                <el-input v-model="formData.password" autocomplete="off"></el-input>
+
+            </el-form-item>
+            <el-form-item label="邮箱" :label-width="formLabelWidth">
+                <el-input v-model="formData.email" autocomplete="off"></el-input>
+
+            </el-form-item>
+            <el-form-item label="电话" :label-width="formLabelWidth">
+                <el-input v-model="formData.mobile" autocomplete="off"></el-input>
+
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="dialogFormVisibleAdduser = false">取 消</el-button>
+            <el-button type="primary" @click="addUser()">确 定</el-button>
+        </div>
+    </el-dialog>
     <!-- 表格 -->
     <el-table v-loading="loading" :data="list" style="width: 100%">
         <el-table-column type="index" label="#" width="40">
@@ -62,13 +86,44 @@ export default {
             pagesize: 2,
             currentPage: 1,
             total: 0,
-            searchVal: ''
+            searchVal: '',
+            dialogFormVisibleAdduser: false,
+            formData: {
+                username: '',
+                password: '',
+                email: '',
+                mobile: ''
+            },
+            formLabelWidth: '100px'
         }
     },
     created() {
-        this.loadTableDate()
+        this.loadTableData()
     },
+
     methods: {
+        //添加用户
+        async addUser() {
+            this.dialogFormVisibleAdduser = false
+            const res = await this.$http.post('users', this.formData)
+            // console.log(res)
+            const {
+                meta: {
+                    status,
+                    msg
+                }
+            } = res.data
+            this.loadTableData()
+            this.$message.success(msg)
+            for (const key in this.formData) {
+                if (this.formData.hasOwnProperty(key)) {
+                    this.formData[key] = ''
+                }
+            }
+        },
+        showAddUserDia() {
+            this.dialogFormVisibleAdduser = true
+        },
         //删除提示框
         showDeleBox(userId) {
             this.$confirm('Sure?', '提示', {
@@ -77,21 +132,24 @@ export default {
                 type: 'warning'
             }).then(async () => {
                 const res = await this.$http.delete(`users/${userId}`)
-                console.log(res)
+                // console.log(res)
                 const {
-                    meta: { msg, status }
+                    meta: {
+                        msg,
+                        status
+                    }
                 } = res.data
                 if (status === 200) {
-                    this.loadTableDate()
+                    this.loadTableData()
                     this.$message({
                         type: 'success',
-                        message:'msg'
+                        message: 'msg'
                     })
                 }
             }).catch(() => {
                 this.$message({
                     type: 'info',
-                    message:' msg'
+                    message: 'msg'
                 })
             })
         },
@@ -111,19 +169,19 @@ export default {
             }
         },
         checkUser() {
-            this.loadTableDate()
+            this.loadTableData()
         },
         handleSizeChange(val) {
             this.pagenum = val
-            this.loadTableDate()
+            this.loadTableData()
             console.log(`每页: ${val}条`);
         },
         handleCurrentChange(val) {
             this.pagenum = val
-            this.loadTableDate()
+            this.loadTableData()
             console.log(`当前页: ${val}`);
         },
-        async loadTableDate() {
+        async loadTableData() {
             this.loading = true
             const AUTH_TOKEN = sessionStorage.getItem('token')
             this.$http.defaults.headers.common['Authorization'] = AUTH_TOKEN
