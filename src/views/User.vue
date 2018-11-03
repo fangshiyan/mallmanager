@@ -40,7 +40,7 @@
             <template slot-scope="scope">
                 <el-row>
                     <el-button type="primary" icon="el-icon-edit" size="mini" plain circle></el-button>
-                    <el-button type="danger" icon="el-icon-delete" size="mini" plain circle></el-button>
+                    <el-button type="danger" icon="el-icon-delete" size="mini" plain circle @click="showDeleBox(scope.row)"></el-button>
                     <el-button type="success" icon="el-icon-check" size="mini" plain circle></el-button>
                 </el-row>
             </template>
@@ -69,13 +69,44 @@ export default {
         this.loadTableDate()
     },
     methods: {
+        //删除提示框
+        showDeleBox(userId) {
+            this.$confirm('Sure?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(async () => {
+                const res = await this.$http.delete(`users/${userId}`)
+                console.log(res)
+                const {
+                    meta: { msg, status }
+                } = res.data
+                if (status === 200) {
+                    this.loadTableDate()
+                    this.$message({
+                        type: 'success',
+                        message:'msg'
+                    })
+                }
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message:' msg'
+                })
+            })
+        },
         async changeSwitchMgstate(user) {
             const res = await this.$http.put(`users/${user.id}/state/${user.mg_state}`)
             // console.log(res)
-            const {meta:{status, msg}} = res.data
-            if (status===200) {
+            const {
+                meta: {
+                    status,
+                    msg
+                }
+            } = res.data
+            if (status === 200) {
                 this.$message.success(msg)
-            }else {
+            } else {
 
             }
         },
