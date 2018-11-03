@@ -16,7 +16,7 @@
         </el-col>
     </el-row>
     <!-- 表格 -->
-    <el-table :data="list" style="width: 100%">
+    <el-table v-loading="loading" :data="list" style="width: 100%">
         <el-table-column type="index" label="#" width="40">
         </el-table-column>
         <el-table-column prop="username" label="姓名" width="80">
@@ -32,10 +32,7 @@
         </el-table-column>
         <el-table-column prop="date" label="用户状态" width="80">
             <template slot-scope="scope">
-                <el-switch 
-                v-model="scope.row.mg_state" 
-                active-color="#13ce66" 
-                inactive-color="#ff4949">
+                <el-switch v-model="scope.row.mg_state" active-color="#13ce66" inactive-color="#ff4949">
                 </el-switch>
             </template>
         </el-table-column>
@@ -48,10 +45,17 @@
                 </el-row>
             </template>
         </el-table-column>
-
     </el-table>
-
     <!-- 分页 -->
+    <el-pagination 
+    @size-change="handleSizeChange" 
+    @current-change="handleCurrentChange" 
+    :current-page="currentPage" 
+    :page-sizes="[2, 4, 6, 8]" 
+    :page-size="pagesize" 
+    layout="total, sizes, prev, pager, next, jumper" 
+    :total="total">
+    </el-pagination>
 </el-card>
 </template>
 
@@ -59,22 +63,48 @@
 export default {
     data() {
         return {
-            list: []
+            list: [],
+            loading: false,
+            pagenum:1,
+            pagesize:2,
+            currentPage: 1,
+            total: 0
         }
     },
     created() {
         this.loadTableDate()
     },
     methods: {
+        handleSizeChange(val) {
+            this.pagenum = val
+            this.loadTableDate()
+            console.log(`每页: ${val}条`);
+        },
+        handleCurrentChange(val) {
+            this.pagenum = val
+            this.loadTableDate()
+            console.log(`当前页: ${val}`);
+        },
         async loadTableDate() {
+            this.loading = true
             const AUTH_TOKEN = sessionStorage.getItem('token')
             this.$http.defaults.headers.common['Authorization'] = AUTH_TOKEN
-            const res = await this.$http.get('users?pagenum=1&pagesize=10')
-            // console.log(res)
-            const { meta: { msg, status }, data: { users } } = res.data
+            const res = await this.$http.get(`users?pagenum=${this.pagenum}&pagesize=${this.pagesize}`)
+            console.log(res)
+            this.total = res.data.data.total
+            const {
+                meta: {
+                    msg,
+                    status
+                },
+                data: {
+                    users
+                }
+            } = res.data
             if (status === 200) {
+                this.loading = false
                 this.list = users
-                console.log(this.list)
+                // console.log(this.list)
             }
         }
     }
