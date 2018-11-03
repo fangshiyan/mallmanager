@@ -9,8 +9,8 @@
     <!-- 搜索框 -->
     <el-row class="searchArea">
         <el-col :span="24">
-            <el-input placeholder="请输入内容" class="searchInput">
-                <el-button slot="append" icon="el-icon-search"></el-button>
+            <el-input placeholder="请输入内容" class="searchInput" v-model="searchVal">
+                <el-button slot="append" icon="el-icon-search" @click="checkUser()"></el-button>
             </el-input>
             <el-button type="success">添加用户</el-button>
         </el-col>
@@ -47,14 +47,7 @@
         </el-table-column>
     </el-table>
     <!-- 分页 -->
-    <el-pagination 
-    @size-change="handleSizeChange" 
-    @current-change="handleCurrentChange" 
-    :current-page="currentPage" 
-    :page-sizes="[2, 4, 6, 8]" 
-    :page-size="pagesize" 
-    layout="total, sizes, prev, pager, next, jumper" 
-    :total="total">
+    <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[2, 4, 6, 8]" :page-size="pagesize" layout="total, sizes, prev, pager, next, jumper" :total="total">
     </el-pagination>
 </el-card>
 </template>
@@ -65,16 +58,20 @@ export default {
         return {
             list: [],
             loading: false,
-            pagenum:1,
-            pagesize:2,
+            pagenum: 1,
+            pagesize: 2,
             currentPage: 1,
-            total: 0
+            total: 0,
+            searchVal: ''
         }
     },
     created() {
         this.loadTableDate()
     },
     methods: {
+        checkUser() {
+            this.loadTableDate()
+        },
         handleSizeChange(val) {
             this.pagenum = val
             this.loadTableDate()
@@ -89,7 +86,7 @@ export default {
             this.loading = true
             const AUTH_TOKEN = sessionStorage.getItem('token')
             this.$http.defaults.headers.common['Authorization'] = AUTH_TOKEN
-            const res = await this.$http.get(`users?pagenum=${this.pagenum}&pagesize=${this.pagesize}`)
+            const res = await this.$http.get(`users?pagenum=${this.pagenum}&pagesize=${this.pagesize}&query=${this.searchVal}`)
             console.log(res)
             this.total = res.data.data.total
             const {
@@ -104,6 +101,9 @@ export default {
             if (status === 200) {
                 this.loading = false
                 this.list = users
+                this.pagenum=1
+                this.pagesize=2
+                this.currentPage=1
                 // console.log(this.list)
             }
         }
