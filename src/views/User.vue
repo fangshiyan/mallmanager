@@ -56,8 +56,32 @@
             </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
-            <el-button @click="dialogFormVisibleAdduser = false">取 消</el-button>
+            <el-button @click="dialogFormVisibleEdituser = false">取 消</el-button>
             <el-button type="primary" @click="editUser()">确 定</el-button>
+        </div>
+    </el-dialog>
+    <!-- 分配权限 -->
+    <el-dialog title="分配权限" :visible.sync="dialogFormVisibleSetrole">
+        <el-form :model="formData">
+            <el-form-item label="用户名" :label-width="formLabelWidth">
+                <el-input disabled v-model="formData.username" autocomplete="off"></el-input>
+                {{currUserName}}
+            </el-form-item>
+
+            <el-form-item label="角色" :label-width="formLabelWidth">
+                <el-select v-model="currRoleId">
+                    <el-option disabled label="请选择" :value="-1">
+
+                    </el-option>
+                    <el-option v-for="(item, index) in roles" :label="item.roleName" :key="index" :value="index">
+                    </el-option>
+                </el-select>
+            </el-form-item>
+
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="dialogFormVisibleSetrole = false">取 消</el-button>
+            <el-button type="primary" @click="setRole()">确 定</el-button>
         </div>
     </el-dialog>
     <!-- 表格 -->
@@ -86,7 +110,7 @@
                 <el-row>
                     <el-button type="primary" icon="el-icon-edit" size="mini" plain circle @click="showEditBox(scope.row.id)"></el-button>
                     <el-button type="danger" icon="el-icon-delete" size="mini" plain circle @click="showDeleBox(scope.row.id)"></el-button>
-                    <el-button type="success" icon="el-icon-check" size="mini" plain circle></el-button>
+                    <el-button type="success" icon="el-icon-check" size="mini" plain circle @click="showRoleBox(scope.row.id)"></el-button>
                 </el-row>
             </template>
         </el-table-column>
@@ -116,8 +140,12 @@ export default {
                 mobile: ''
             },
             formLabelWidth: '100px',
-            dialogFormVisibleEdituser: false
-
+            dialogFormVisibleEdituser: false,
+            dialogFormVisibleSetrole: false,
+            currUserName: '',
+            currRoleId: -1,
+            roles: [],
+            currUserId: -1
         }
     },
     created() {
@@ -125,10 +153,35 @@ export default {
     },
 
     methods: {
+        //分配权限
+        async setRole() {
+            const res = await this.$http.put(`users/${this.currUserId}/role`, {
+                rid: this.currRoleId
+            })
+            const {
+                meta: {
+                    status,
+                    msg
+                }
+            } = res.data
+            this.$message.success(msg)
+            this.dialogFormVisibleSetrole = false
+            this.currRoleId = -1
+        },
+        async showRoleBox(user) {
+            this.currUserId = user.id
+            this.currUserName = user.username
+            this.dialogFormVisibleSetrole = true
+            const res = await this.$http.get('roles')
+            const res2 = await this.$http.get(`users/${user}`)
+            // console.log(res2)
+            this.currRoleId = res2.data.data.rid
+            this.roles = res.data.data
+        },
         //编辑用户
-        async editUser(){
+        async editUser() {
             this.dialogFormVisibleEdituser = false
-            const res = await this.$http.put(`users/${this.formData.id}`,this.formData)
+            const res = await this.$http.put(`users/${this.formData.id}`, this.formData)
             console.log(res)
             this.loadTableData()
             this.$message.success(res.data.meta.msg)
@@ -138,7 +191,7 @@ export default {
             const res = await this.$http.get(`users/${userId}`)
             console.log(res)
             this.formData = res.data.data
-            
+
         },
         //添加用户
         async addUser() {
