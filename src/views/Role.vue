@@ -12,8 +12,24 @@
     <el-table :data="rolelist" style="width: 100%">
         <!-- 展示 type -->
         <el-table-column type="expand">
-            <template slot-scope="props">
-                
+            <template slot-scope="scope">
+                <el-row class="level1" v-for="(item1,index) in scope.row.children" :key="index">
+                    <el-col :span="4">
+                        <el-tag closable type="success">{{item1.authName}}</el-tag>
+                        <i class="el-icon-arrow-right"></i>
+                    </el-col>
+                    <el-col :span="20">
+                        <el-row class="level2" v-for="(item2,index) in item1.children" :key="index">
+                            <el-col :span="6">
+                                <el-tag closable type="warning">{{item2.authName}}</el-tag>
+                                <i class="el-icon-arrow-right"></i>
+                            </el-col>
+                            <el-col :span="18">
+                                <el-tag closable type="error" v-for="(item3,index) in item2.children" :key="index">{{item3.authName}}</el-tag>
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                </el-row>
             </template>
         </el-table-column>
         <el-table-column label="#" type="index">
@@ -34,6 +50,7 @@
     </el-table>
 </el-card>
 </template>
+
 <script>
 export default {
     data() {
@@ -62,5 +79,11 @@ export default {
 
 .addbtn {
     margin-top: 10px;
+}
+.level2{
+    margin-bottom: 10px;
+}
+.level1{
+    margin-bottom: 10px;
 }
 </style>
