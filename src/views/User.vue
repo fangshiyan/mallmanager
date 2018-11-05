@@ -92,7 +92,7 @@
         </el-table-column>
         <el-table-column prop="email" label="邮箱" width="140">
         </el-table-column>
-        <el-table-column prop="mobile" label="电话" width="100">
+        <el-table-column prop="mobile" label="电话" width="120">
         </el-table-column>
         <el-table-column label="创建日期" width="180">
             <template slot-scope="scope">
@@ -110,7 +110,7 @@
                 <el-row>
                     <el-button type="primary" icon="el-icon-edit" size="mini" plain circle @click="showEditBox(scope.row.id)"></el-button>
                     <el-button type="danger" icon="el-icon-delete" size="mini" plain circle @click="showDeleBox(scope.row.id)"></el-button>
-                    <el-button type="success" icon="el-icon-check" size="mini" plain circle @click="showRoleBox(scope.row.id)"></el-button>
+                    <el-button type="success" icon="el-icon-check" size="mini" plain circle @click="showRoleBox(scope.row)"></el-button>
                 </el-row>
             </template>
         </el-table-column>
@@ -175,7 +175,7 @@ export default {
             const res = await this.$http.get('roles')
             const res2 = await this.$http.get(`users/${user}`)
             // console.log(res2)
-            this.currRoleId = res2.data.data.rid
+            this.currRoleId = res2.data.data
             this.roles = res.data.data
         },
         //编辑用户
