@@ -44,13 +44,23 @@
         <el-table-column label="操作">
             <template slot-scope="scope">
                 <el-row>
-                    <el-button type="primary" icon="el-icon-edit" size="mini" plain circle @click="showEditBox(scope.row.id)"></el-button>
-                    <el-button type="danger" icon="el-icon-delete" size="mini" plain circle @click="showDeleBox(scope.row.id)"></el-button>
-                    <el-button type="success" icon="el-icon-check" size="mini" plain circle @click="showRoleBox(scope.row)"></el-button>
+                    <el-button type="primary" icon="el-icon-edit" size="mini" plain circle></el-button>
+                    <el-button type="danger" icon="el-icon-delete" size="mini" plain circle></el-button>
+                    <el-button type="success" icon="el-icon-check" size="mini" plain circle @click="showSetRightDia()"></el-button>
                 </el-row>
             </template>
         </el-table-column>
     </el-table>
+    <!-- 分配权限的对话框 -->
+    <el-dialog title="分配权限" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
+        <template slot-scope="scope">
+            
+        </template>
+        <span slot="footer" class="dialog-footer">
+    <el-button @click="dialogVisible = false">取 消</el-button>
+    <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+  </span>
+    </el-dialog>
 </el-card>
 </template>
 
@@ -58,15 +68,20 @@
 export default {
     data() {
         return {
-            rolelist: []
+            rolelist: [],
+            dialogVisible: false
         }
     },
     created() {
         this.loadTableData()
     },
     methods: {
+        //分配权限
+        showSetRightDia(){
+            this.dialogVisible = true
+        },
         // 删除权限
-        async deleRole(role,rightId) {
+        async deleRole(role, rightId) {
             const res = await this.$http.delete(`roles/${role.id}/rights/${rightId}`)
             console.log(res)
             this.loadTableData()
