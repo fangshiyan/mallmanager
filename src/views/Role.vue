@@ -54,7 +54,8 @@
     <!-- 分配权限的对话框 -->
     <el-dialog title="分配权限" :visible.sync="dialogVisible" width="50%">
         <template slot-scope="scope">
-            <el-tree 
+            <el-tree
+            ref="tree" 
             :data="treelist" 
             :props="defaultProps" 
             node-key='id' 
@@ -65,7 +66,7 @@
         </template>
         <span slot="footer" class="dialog-footer">
     <el-button @click="dialogVisible = false">取 消</el-button>
-    <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+    <el-button type="primary" @click="setRight">确 定</el-button>
   </span>
     </el-dialog>
 </el-card>
@@ -83,15 +84,24 @@ export default {
                 label: 'authName'
             },
             expandedArr: [],
-            checkedArr:[]
+            checkedArr:[],
+            roleId: -1
         }
     },
     created() {
         this.loadTableData()
     },
     methods: {
+        setRight(){
+            this.dialogVisible = false
+            // getelementById()
+            const arr1 = this.$refs.tree.getCheckedKeys()
+            const arr2 = this.$refs.tree.getHalfCheckedKeys()
+        },
         //分配权限
         async showSetRightDia(role) {
+            console.log(role)
+            this.roleId = role.id
             this.dialogVisible = true
             const res = await this.$http.get(`rights/tree`)
             console.log(res)
