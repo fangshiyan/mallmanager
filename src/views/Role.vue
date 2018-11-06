@@ -46,15 +46,22 @@
                 <el-row>
                     <el-button type="primary" icon="el-icon-edit" size="mini" plain circle></el-button>
                     <el-button type="danger" icon="el-icon-delete" size="mini" plain circle></el-button>
-                    <el-button type="success" icon="el-icon-check" size="mini" plain circle @click="showSetRightDia()"></el-button>
+                    <el-button type="success" icon="el-icon-check" size="mini" plain circle @click="showSetRightDia(scope.row)"></el-button>
                 </el-row>
             </template>
         </el-table-column>
     </el-table>
     <!-- 分配权限的对话框 -->
-    <el-dialog title="分配权限" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
+    <el-dialog title="分配权限" :visible.sync="dialogVisible" width="50%">
         <template slot-scope="scope">
-            
+            <el-tree 
+            :data="treelist" 
+            :props="defaultProps" 
+            node-key='id' 
+            :default-expanded-keys="expandedArr" 
+            :default-checked-keys="checkedArr"
+            show-checkbox>
+            </el-tree>
         </template>
         <span slot="footer" class="dialog-footer">
     <el-button @click="dialogVisible = false">取 消</el-button>
@@ -69,7 +76,14 @@ export default {
     data() {
         return {
             rolelist: [],
-            dialogVisible: false
+            dialogVisible: false,
+            treelist: [],
+            defaultProps: {
+                children: 'children',
+                label: 'authName'
+            },
+            expandedArr: [],
+            checkedArr:[]
         }
     },
     created() {
@@ -77,8 +91,34 @@ export default {
     },
     methods: {
         //分配权限
-        showSetRightDia(){
+        async showSetRightDia(role) {
             this.dialogVisible = true
+            const res = await this.$http.get(`rights/tree`)
+            console.log(res)
+            this.treelist = res.data.data
+            const arr = []
+            res.data.data.forEach(item1 => {
+                arr.push(item1.id)
+                item1.children.forEach(item2 => {
+                    arr.push(item2.id)
+                    item2.children.forEach(item3 => {
+                        arr.push(item3.id)
+                    });
+                });
+            });
+            console.log(arr)
+            this.expandedArr = arr
+            const arrcheck = []
+            role.children.forEach(item1 => {
+                arrcheck.push(item1.id)
+                item1.children.forEach(item2 => {
+                    arrcheck.push(item2.id)
+                    item2.children.forEach(item3 => {
+                        arrcheck.push(item3.id)
+                    });
+                });
+            });
+            this.checkedArr = arrcheck
         },
         // 删除权限
         async deleRole(role, rightId) {
@@ -89,7 +129,7 @@ export default {
         },
         async loadTableData() {
             const res = await this.$http.get(`roles`)
-            console.log(res)
+            // console.log(res)
             this.rolelist = res.data.data
 
         },
