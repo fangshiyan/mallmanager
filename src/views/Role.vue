@@ -92,11 +92,22 @@ export default {
         this.loadTableData()
     },
     methods: {
-        setRight(){
+        async setRight(){
             this.dialogVisible = false
             // getelementById()
             const arr1 = this.$refs.tree.getCheckedKeys()
             const arr2 = this.$refs.tree.getHalfCheckedKeys()
+            const arr = [...arr1,...arr2]
+            // console.log(arr)
+            const res = await this.$http.post(`roles/${this.roleId}/rights`,{
+                rids:arr.join(',')
+            })
+            console.log(res)
+            const {meta:{status,msg}} = res.data
+            if (status ===200) {
+                this.$message,success(msg)
+                this.loadTableData()
+            }
         },
         //分配权限
         async showSetRightDia(role) {
@@ -104,7 +115,7 @@ export default {
             this.roleId = role.id
             this.dialogVisible = true
             const res = await this.$http.get(`rights/tree`)
-            console.log(res)
+            // console.log(res)
             this.treelist = res.data.data
             const arr = []
             res.data.data.forEach(item1 => {
@@ -116,7 +127,7 @@ export default {
                     });
                 });
             });
-            console.log(arr)
+            // console.log(arr)
             this.expandedArr = arr
             const arrcheck = []
             role.children.forEach(item1 => {
@@ -133,7 +144,7 @@ export default {
         // 删除权限
         async deleRole(role, rightId) {
             const res = await this.$http.delete(`roles/${role.id}/rights/${rightId}`)
-            console.log(res)
+            // console.log(res)
             this.loadTableData()
             role.children = res.data.data
         },
