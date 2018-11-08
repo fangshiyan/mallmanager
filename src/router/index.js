@@ -6,6 +6,9 @@ import User from '@/views/user'
 import Rights from '@/views/rights'
 import Role from '@/views/role'
 import { MessageBox } from 'element-ui'
+import Cateparams from '@/views/cateparams'
+import Goodscate from '@/views/goodscate'
+import Goodslist from '@/views/goodslist'
 
 Vue.use(Router)
 
@@ -29,6 +32,21 @@ const router = new Router({
         path: '/roles',
         component:Role
       },
+      {
+        name: 'goods',
+        path: '/goods',
+        component:Goodslist
+      },
+      {
+        name: 'params',
+        path: '/params',
+        component:Cateparams
+      },
+      {
+        name: 'categories',
+        path: '/categories',
+        component:Goodscate
+      },
     ]
   },{
     name: 'login',
@@ -45,26 +63,10 @@ router.beforeEach((to, from, next) => {
     if (!token) {
       router.push('/login')
       Message.success('请先登录')
-      // this.$message.warning('请先登录')
-      // next()
     } else {
-      // Message.warning('进入到Home页')
-      // this.$message.warning('进入到Home页')
-      // router.push('/')
       next()
     }
-
-
-
   }
-  // const token = sessionStorage.getItem('token')
-  //   if (!token) {
-  //       this.$router.push('/login')
-  //       this.$message.warning('请先登录')
-  //   } else {
-  //       this.$message.warning('进入到Home页')
-  //       this.$router.push('/')
-  //   }
   next()
 })
 export default router
